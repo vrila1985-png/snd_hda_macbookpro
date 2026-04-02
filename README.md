@@ -68,6 +68,41 @@ TESTING: After compiling/installing the driver, a test script is provided.
 The following installation setup provided by leifliddy.
 
 
+## Fresh Install Quick Start (Ubuntu 26.04 Raccoon)
+
+On a brand new Ubuntu 26.04 installation on a MacBook Pro, run these commands in order:
+
+**Step 1 — Install dependencies:**
+```bash
+sudo apt-get update && sudo apt-get install -y build-essential linux-headers-$(uname -r) make patch wget
+```
+
+**Step 2 — Clone this repository:**
+```bash
+git clone https://github.com/vrila1985-png/snd_hda_macbookpro.git
+cd snd_hda_macbookpro
+```
+
+**Step 3 — Install the Cirrus Logic audio driver:**
+```bash
+sudo ./install.cirrus.driver.sh
+```
+
+**Step 4 — Install all remaining hardware drivers** (GPU VA-API, Bluetooth/AirPods fix, FaceTime HD Camera, Thunderbolt 3, battery management, screen brightness):
+```bash
+sudo ./macbook_hardware_fixer.sh
+```
+
+**Step 5 — Reboot:**
+```bash
+sudo reboot
+```
+
+**Step 6 — Verify the audio driver is working:**
+```bash
+./tests/verify-installation.sh
+```
+
 
 Compiling and installing driver:
 -------------
