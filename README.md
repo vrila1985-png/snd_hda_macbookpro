@@ -79,7 +79,7 @@ sudo apt-get update && sudo apt-get install -y build-essential linux-headers-$(u
 
 **Step 2 — Clone this repository:**
 ```bash
-git clone https://github.com/vrila1985-png/snd_hda_macbookpro.git
+git clone https://github.com/vrila1985/snd_hda_macbookpro.git
 cd snd_hda_macbookpro
 ```
 
