@@ -52,15 +52,15 @@ NOTE. My primary testing kernel is now Ubuntu LTS 24.04 6.8.
 NOTA BENE. As of linux kernel 6.17 the sound kernel source directory has been completely re-organized.
            The installation script now works for 6.17 kernel versions (and later when they arrive).
            The old installation script is now called install.cirrus.driver.pre617.sh.
-The new version of the install.cirrus.driver.sh script will detect your kernel version and exec
+           The new version of the install.cirrus.driver.sh script will detect your kernel version and exec
            the old installation script as needed.
            Note that for kernel version 6.17 new files and directories have been added to the repo
            rather than attempting to update the pre 6.17 versions.
 
-NOTA BENE (LINUX 7.0+): For bleeding-edge versions like Kernel 7.0.x, the codebase compiles cleanly. 
-           If the script `install.cirrus.driver.sh` fails to find `linux-source-7.x.x` locally on Ubuntu,
-           you can manually download the .deb file: `apt-get download linux-source-7.0.0` and extract
-           the `sound/hda` tree directly into `build/` before making the driver.
+NOTA BENE (LINUX 7.0+): For bleeding-edge kernel versions like 7.0.x, the codebase compiles cleanly.
+           If the script `install.cirrus.driver.sh` cannot find `linux-source-7.x.x` already installed
+           on your system, it will automatically download and extract it from the Ubuntu repositories
+           via `apt-get download` — no manual intervention required.
 
 TESTING: After compiling/installing the driver, a test script is provided.
          Run `./tests/verify-installation.sh` to check if `snd_hda_codec_cs8409` works!
@@ -76,9 +76,9 @@ Compiling and installing driver:
 ```
 dnf install gcc kernel-devel make patch wget
 ```
-**ubuntu package install**  
+**ubuntu / ubuntu-based package install**  
 ```
-apt install gcc linux-headers-generic make patch wget
+sudo apt install build-essential linux-headers-$(uname -r) make patch wget
 ```
 **arch package install**
 ```

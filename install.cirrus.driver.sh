@@ -163,32 +163,36 @@ if [ $isubuntu -ge 1 ]; then
 
 		echo "Ubuntu linux kernel source not found in /usr/src: /usr/src/linux-source-$kernel_version.tar.bz2"
 		echo "Attempting to download and extract linux-source-$kernel_version locally via apt-get download..."
-		
-		# Create a temporary directory for deb extraction
-		mkdir -p $build_dir/tmp-deb
-		pushd $build_dir/tmp-deb > /dev/null
-		
-		# Allow non-zero exit for apt-get download to check if it fails
+
+		# Create a temporary directory for deb extraction (absolute path to avoid relative path issues)
+		local_tmp_deb="$cur_dir/$build_dir/tmp-deb"
+		mkdir -p "$local_tmp_deb"
+		pushd "$local_tmp_deb" > /dev/null
+
+		# Allow non-zero exit for apt-get download so we can handle errors gracefully
 		set +e
 		apt-get download linux-source-$kernel_version
 		if [[ $? -ne 0 ]]; then
 			echo "Failed to download linux-source-$kernel_version via apt-get."
 			echo "Please install it manually via: sudo apt install linux-source-$kernel_version"
+			popd > /dev/null
 			exit 1
 		fi
 		set -e
-		
+
 		echo "Extracting deb package..."
 		dpkg-deb -x *.deb .
 		echo "Extracting kernel sound/hda source..."
-		tar --strip-components=2 -xvf usr/src/linux-source-*/linux-source-*.tar.bz2 --directory=../ linux-source-$kernel_version/sound/hda
-		
+		tar --strip-components=2 -xvf usr/src/linux-source-*/linux-source-*.tar.bz2 \
+			--directory="$cur_dir/$build_dir" linux-source-$kernel_version/sound/hda
+
 		popd > /dev/null
 		# Clean up temporary deb extraction folder
-		rm -rf $build_dir/tmp-deb
-		
+		rm -rf "$local_tmp_deb"
+
 	else
-		tar --strip-components=2 -xvf /usr/src/linux-source-$kernel_version.tar.bz2 --directory=build/ linux-source-$kernel_version/sound/hda
+		tar --strip-components=2 -xvf /usr/src/linux-source-$kernel_version.tar.bz2 \
+			--directory="$cur_dir/$build_dir" linux-source-$kernel_version/sound/hda
 	fi
 
 else
@@ -220,9 +224,9 @@ fi
 
 
 mv $hda_dir/Makefile $hda_dir/Makefile.orig
-mv $hda_dir/common/Makefile $hda_dir/common//Makefile.orig
-mv $hda_dir/codecs/Makefile $hda_dir/codecs//Makefile.orig
-mv $hda_dir/codecs/cirrus/Makefile $hda_dir/codecs/cirrus//Makefile.orig
+mv $hda_dir/common/Makefile $hda_dir/common/Makefile.orig
+mv $hda_dir/codecs/Makefile $hda_dir/codecs/Makefile.orig
+mv $hda_dir/codecs/cirrus/Makefile $hda_dir/codecs/cirrus/Makefile.orig
 
 cp $makefiles_dir/Makefile $hda_dir
 cp $makefiles_dir/Makefile_common $hda_dir/common/Makefile
@@ -280,31 +284,16 @@ if [ $iscurrent -gt 1 ]; then
 fi
 
 if [[ ( $major_version -eq 6 && $minor_version -ge 17 ) || $major_version -ge 7 ]]; then
-	if [ $isubuntu -ge 1 ]; then
 
-		patch -b -p1 <../../patch_cs8409.c.diff
+	patch -b -p1 <../../patch_cs8409.c.diff
 
-		if [ $iscurrent -ge 0 ]; then
-			patch -b -p1 <../../patch_cs8409.h.diff
-		else
-			echo "Error: older version not implmented yet"
-                        exit 1
-		fi
-
+	if [ $iscurrent -ge 0 ]; then
+		patch -b -p1 <../../patch_cs8409.h.diff
 	else
-		patch -b -p1 <../../patch_cs8409.c.diff
-
-		if [ $iscurrent -ge 0 ]; then
-			patch -b -p1 <../../patch_cs8409.h.diff
-		else
-			echo "Error: older version not implmented yet"
-                        exit 1
-		fi
-
-                # this just redos the above copies - why was it in??
-		#cp $patch_dir/Makefile $patch_dir/patch_cirrus_* $hda_dir/
-
+		echo "Error: older kernel version patch not implemented yet"
+		exit 1
 	fi
+
 fi
 
 popd > /dev/null

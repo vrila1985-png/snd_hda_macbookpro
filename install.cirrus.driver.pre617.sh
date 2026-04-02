@@ -301,12 +301,8 @@ popd > /dev/null
 
 [[ ! $dkms_action == 'install' ]] && [[ ! -d $update_dir ]] && mkdir $update_dir
 
-#echo "DKMS VAR IS ${dkms}"
-
-# Skipping patch installation since dkms will do it
+# Skipping make/install since dkms will handle it
 if [[ ! $dkms = true ]]; then
-
-	echo "DKMS FALSE DONE"
 
 	if [ $PATCH_CIRRUS = true ]; then
 		make PATCH_CIRRUS=1
