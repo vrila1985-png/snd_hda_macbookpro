@@ -52,14 +52,18 @@ NOTE. My primary testing kernel is now Ubuntu LTS 24.04 6.8.
 NOTA BENE. As of linux kernel 6.17 the sound kernel source directory has been completely re-organized.
            The installation script now works for 6.17 kernel versions (and later when they arrive).
            The old installation script is now called install.cirrus.driver.pre617.sh.
-           The new version of the install.cirrus.driver.sh script will detect your kernel version and exec
+The new version of the install.cirrus.driver.sh script will detect your kernel version and exec
            the old installation script as needed.
-           For older kernel version you can just run the old installation script directly
-           ie install.cirrus.driver.pre617.sh.
            Note that for kernel version 6.17 new files and directories have been added to the repo
-           rather than attempting to update the pre 6.17 versions (as the kernel source changes also
-           involved name changes and the new files are more consistent with the new kernel names).
+           rather than attempting to update the pre 6.17 versions.
 
+NOTA BENE (LINUX 7.0+): For bleeding-edge versions like Kernel 7.0.x, the codebase compiles cleanly. 
+           If the script `install.cirrus.driver.sh` fails to find `linux-source-7.x.x` locally on Ubuntu,
+           you can manually download the .deb file: `apt-get download linux-source-7.0.0` and extract
+           the `sound/hda` tree directly into `build/` before making the driver.
+
+TESTING: After compiling/installing the driver, a test script is provided.
+         Run `./tests/verify-installation.sh` to check if `snd_hda_codec_cs8409` works!
 
 The following installation setup provided by leifliddy.
 

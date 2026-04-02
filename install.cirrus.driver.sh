@@ -162,18 +162,34 @@ if [ $isubuntu -ge 1 ]; then
 	if [ ! -e /usr/src/linux-source-$kernel_version.tar.bz2 ]; then
 
 		echo "Ubuntu linux kernel source not found in /usr/src: /usr/src/linux-source-$kernel_version.tar.bz2"
-		echo "assuming the linux kernel source package is not installed"
-		echo "please install the linux kernel source package:"
-		echo "sudo apt install linux-source-$kernel_version"
-		echo "if the above doesn't work because some distros don't use LTS Kernel, download the linux-source-$kernel_version .deb file"
-		echo "using Archive Manager, Open data.tar.zst, extract /usr/src/linux-source-$kernel_version/linux-source-$kernel_version.tar.bz2"
-		echo "NOTE - This does not work for HWE kernels"
-
-		exit 1
-
+		echo "Attempting to download and extract linux-source-$kernel_version locally via apt-get download..."
+		
+		# Create a temporary directory for deb extraction
+		mkdir -p $build_dir/tmp-deb
+		pushd $build_dir/tmp-deb > /dev/null
+		
+		# Allow non-zero exit for apt-get download to check if it fails
+		set +e
+		apt-get download linux-source-$kernel_version
+		if [[ $? -ne 0 ]]; then
+			echo "Failed to download linux-source-$kernel_version via apt-get."
+			echo "Please install it manually via: sudo apt install linux-source-$kernel_version"
+			exit 1
+		fi
+		set -e
+		
+		echo "Extracting deb package..."
+		dpkg-deb -x *.deb .
+		echo "Extracting kernel sound/hda source..."
+		tar --strip-components=2 -xvf usr/src/linux-source-*/linux-source-*.tar.bz2 --directory=../ linux-source-$kernel_version/sound/hda
+		
+		popd > /dev/null
+		# Clean up temporary deb extraction folder
+		rm -rf $build_dir/tmp-deb
+		
+	else
+		tar --strip-components=2 -xvf /usr/src/linux-source-$kernel_version.tar.bz2 --directory=build/ linux-source-$kernel_version/sound/hda
 	fi
-
-	tar --strip-components=2 -xvf /usr/src/linux-source-$kernel_version.tar.bz2 --directory=build/ linux-source-$kernel_version/sound/hda
 
 else
 	# here we assume the distribution kernel source is essentially the mainline kernel source
